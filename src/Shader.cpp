@@ -44,18 +44,18 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geo
                 geometryCode = gShaderStream.str();
             }
         }
-        catch (std::ifstream::failure e)
+        catch (const std::ifstream::failure& e)
         {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
         }
         const char* vShaderCode = vertexCode.c_str();
         const char * fShaderCode = fragmentCode.c_str();
         // 2. compile shaders
         unsigned int vertex, fragment;
         int success;
-        char infoLog[512];
         // vertex shader
         vertex = glCreateShader(GL_VERTEX_SHADER);
+
         glShaderSource(vertex, 1, &vShaderCode, NULL);
         glCompileShader(vertex);
         checkCompileErrors(vertex, "VERTEX");
@@ -78,15 +78,15 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geo
         ID = glCreateProgram();
         glAttachShader(ID, vertex);
         glAttachShader(ID, fragment);
-        if(geometryPath != nullptr)
-            glAttachShader(ID, geometry);
+        if(geometryPath != nullptr) {glAttachShader(ID, geometry);}
+            
         glLinkProgram(ID);
         checkCompileErrors(ID, "PROGRAM");
-        // delete the shaders as they're linked into our program now and no longer necessery
+        // delete the shaders as they're linked into our program now and no longer necessary
         glDeleteShader(vertex);
         glDeleteShader(fragment);
-        if(geometryPath != nullptr)
-            glDeleteShader(geometry);
+        if(geometryPath != nullptr) {glDeleteShader(geometry);}
+            
 
 }
     // activate the shader
@@ -146,7 +146,7 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const {
 
 // utility function for checking shader compilation/linking errors.
 // ------------------------------------------------------------------------
-void Shader::checkCompileErrors(GLuint shader, std::string type)
+void Shader::checkCompileErrors(GLuint shader, const std::string& type)
     {
         GLint success;
         GLchar infoLog[1024];
