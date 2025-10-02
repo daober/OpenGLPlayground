@@ -13,7 +13,7 @@ set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs")
 
-set(SOURCES "${SRC_DIR}/main.cpp" "${INCLUDE_DIR}/Camera.h" "${INCLUDE_DIR}/Shader.h" "${INCLUDE_DIR}/stb_image.h" "${SRC_DIR}/helpers.cpp" "${SRC_DIR}/glad.c")
+set(SOURCES "${SRC_DIR}/main.cpp" "${INCLUDE_DIR}/Camera.h" "${INCLUDE_DIR}/Shader.h" "${INCLUDE_DIR}/stb_image.h" "${SRC_DIR}/Shader.cpp" "${SRC_DIR}/helpers.cpp" "${SRC_DIR}/glad.c")
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
