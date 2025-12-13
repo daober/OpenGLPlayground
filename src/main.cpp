@@ -97,6 +97,31 @@ int main()
          5.0f, -0.5f, -5.0f,  2.0f, 2.0f
     };
 
+
+    // ================== LANE QUAD ==================
+    float laneQuad[] = {
+        // positions (X, Y, Z)
+        -5.0f, 0.0f,  0.0f,   // left  near
+        5.0f, 0.0f,  0.0f,   // right near
+        5.0f, 0.0f, -10.0f,  // right far
+
+        -5.0f, 0.0f,  0.0f,   // left  near
+        5.0f, 0.0f, -10.0f,  // right far
+        -5.0f, 0.0f, -10.0f   // left  far
+    };
+
+    unsigned int laneVAO, laneVBO;
+    glGenVertexArrays(1, &laneVAO);
+    glGenBuffers(1, &laneVBO);
+    glBindVertexArray(laneVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, laneVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(laneQuad), &laneQuad, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+    glBindVertexArray(0);
+
     unsigned int planeVAO, planeVBO;
     glGenVertexArrays(1, &planeVAO);
     glGenBuffers(1, &planeVBO);
@@ -152,28 +177,46 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
-        glEnable(GL_POLYGON_OFFSET_FILL);
-        glPolygonOffset(-1.0f, -1.0f); // avoid z-fighting
-
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST); // HUD-like behavior
         glm::vec4 laneColor = glm::vec4(0.1f, 0.4f, 1.0f, 0.7f);
         glm::vec4 spline = glm::vec4(0.02f, -0.15f, 0.0f,0.0f);
-
+        
         laneShader.use();
-        float speed = 1.0f; // units per second
-        float laneOffsetZ = fmod(glfwGetTime() * speed, 10.0f); // loop every 10 units
-        laneShader.setFloat("laneOffsetZ", laneOffsetZ);
+
         laneShader.setMat4("view", view);
         laneShader.setMat4("projection", projection);
         laneShader.setMat4("model", glm::mat4(1.0f));
-        laneShader.setVec4("splineCoeff", spline);
-        laneShader.setFloat("laneWidth", 0.15f);
-        laneShader.setVec4("laneColor", laneColor);
-        laneShader.setFloat("laneDir", 1.0f);
 
-        glBindVertexArray(planeVAO);
+        laneShader.setVec3("carPos", camera.Position);
+        laneShader.setVec3("carForward", glm::normalize(camera.Front));
+        laneShader.setVec3("carRight", glm::normalize(camera.Right));
+
+        laneShader.setFloat("laneWidth", 0.25f);
+        laneShader.setFloat("laneLength", 10.0f);
+
+        laneShader.setVec4("laneColor", glm::vec4(0.1f, 0.4f, 1.0f, 0.8f));
+
+        laneShader.setVec4("splineCoeff",
+            glm::vec4(
+                -2.0f * 3.5f / (10.0f*10.0f*10.0f),
+                3.0f * 3.5f / (10.0f*10.0f),
+                0.0f,
+                0.0f
+            )
+        );
+
+        laneShader.setFloat("laneDir", -1.0f);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glBindVertexArray(laneVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
 
-        glDisable(GL_POLYGON_OFFSET_FILL);
+        glDisable(GL_BLEND);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -185,6 +228,8 @@ int main()
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &planeVAO);
     glDeleteBuffers(1, &planeVBO);
+    glDeleteVertexArrays(1, &laneVAO);
+    glDeleteBuffers(1, &laneVBO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
