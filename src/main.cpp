@@ -101,13 +101,13 @@ int main()
     // ================== LANE QUAD ==================
     float laneQuad[] = {
         // positions (X, Y, Z)
-        -5.0f, 0.0f,  0.0f,   // left  near
-        5.0f, 0.0f,  0.0f,   // right near
-        5.0f, 0.0f, -10.0f,  // right far
+        -5.0f, -0.49f, -0.5f,   // left  near  (offset forward)
+        5.0f, -0.49f, -0.5f,   // right near
+        5.0f, -0.49f, -10.5f,  // right far
 
-        -5.0f, 0.0f,  0.0f,   // left  near
-        5.0f, 0.0f, -10.0f,  // right far
-        -5.0f, 0.0f, -10.0f   // left  far
+        -5.0f, -0.49f, -0.5f,
+        5.0f, -0.49f, -10.5f,
+        -5.0f, -0.49f, -10.5f
     };
 
     unsigned int laneVAO, laneVBO;
