@@ -155,19 +155,19 @@ int main()
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-1.0f, -1.0f); // avoid z-fighting
 
-        glm::vec4 splineCoeff = glm::vec4(0.1f, 0.4f, 1.0f, 0.7f);
+        glm::vec4 laneColor = glm::vec4(0.1f, 0.4f, 1.0f, 0.7f);
+        glm::vec4 spline = glm::vec4(0.02f, -0.15f, 0.0f,0.0f);
 
         laneShader.use();
         float speed = 1.0f; // units per second
         float laneOffsetZ = fmod(glfwGetTime() * speed, 10.0f); // loop every 10 units
-
         laneShader.setFloat("laneOffsetZ", laneOffsetZ);
         laneShader.setMat4("view", view);
         laneShader.setMat4("projection", projection);
         laneShader.setMat4("model", glm::mat4(1.0f));
-        laneShader.setVec4("splineCoeff",glm::vec4(0.02f, -0.15f, 0.0f,0.0f));
+        laneShader.setVec4("splineCoeff", spline);
         laneShader.setFloat("laneWidth", 0.15f);
-        laneShader.setVec4("laneColor", splineCoeff);
+        laneShader.setVec4("laneColor", laneColor);
         laneShader.setFloat("laneDir", 1.0f);
 
         glBindVertexArray(planeVAO);
