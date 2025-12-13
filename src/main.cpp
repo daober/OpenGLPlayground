@@ -81,6 +81,7 @@ int main()
     // build and compile our shader program
     // ------------------------------------
     Shader shader("../shaders/basic.vs", "../shaders/basic.fs");
+    Shader laneShader("../shaders/spline.vs", "../shaders/spline.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -150,6 +151,24 @@ int main()
         shader.setMat4("model", glm::mat4(1.0f));
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(-1.0f, -1.0f); // avoid z-fighting
+
+        laneShader.use();
+        laneShader.setMat4("view", view);
+        laneShader.setMat4("projection", projection);
+        laneShader.setMat4("model", glm::mat4(1.0f));
+
+        glBindVertexArray(planeVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glDisable(GL_POLYGON_OFFSET_FILL);
+
+        glDisable(GL_BLEND);
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
