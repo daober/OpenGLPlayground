@@ -152,24 +152,28 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-1.0f, -1.0f); // avoid z-fighting
 
+        glm::vec4 splineCoeff = glm::vec4(0.1f, 0.4f, 1.0f, 0.7f);
+
         laneShader.use();
+        float speed = 1.0f; // units per second
+        float laneOffsetZ = fmod(glfwGetTime() * speed, 10.0f); // loop every 10 units
+
+        laneShader.setFloat("laneOffsetZ", laneOffsetZ);
         laneShader.setMat4("view", view);
         laneShader.setMat4("projection", projection);
         laneShader.setMat4("model", glm::mat4(1.0f));
+        laneShader.setVec4("splineCoeff",glm::vec4(0.02f, -0.15f, 0.0f,0.0f));
+        laneShader.setFloat("laneWidth", 0.15f);
+        laneShader.setVec4("laneColor", splineCoeff);
+        laneShader.setFloat("laneDir", 1.0f);
 
         glBindVertexArray(planeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glDisable(GL_POLYGON_OFFSET_FILL);
-
-        glDisable(GL_BLEND);
-
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

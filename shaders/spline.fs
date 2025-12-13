@@ -3,14 +3,20 @@ out vec4 FragColor;
 
 in vec3 WorldPos;
 
-/* Mock cubic spline: x = f(z) */
+uniform vec4 splineCoeff;   // cubic spline coefficients (a,b,c,d)
+uniform float laneWidth;    // half-width of the lane
+uniform vec4 laneColor;     // RGBA color (ignore alpha if fully opaque)
+uniform float laneDir;      // -1.0 = left, +1.0 = right
+uniform float laneOffsetZ; 
+
 float spline(float z)
 {
-    float a =  0.02;
-    float b = -0.15;
-    float c =  0.0;
-    float d =  0.0;
-    return a*z*z*z + b*z*z + c*z + d;
+    float x = splineCoeff.x * z*z*z +
+              splineCoeff.y * z*z +
+              splineCoeff.z * z +
+              splineCoeff.w;
+
+    return laneDir * x;
 }
 
 void main()
@@ -18,13 +24,12 @@ void main()
     float x = WorldPos.x;
     float z = WorldPos.z;
 
-    float curveX = spline(z);
+    float curveX = spline(z - laneOffsetZ);
     float dist   = abs(x - curveX);
 
-    float width = 0.15;
-
-    if (dist > width)
+    if (dist > laneWidth)
         discard;
 
-    FragColor = vec4(0.1, 0.4, 1.0, 0.7);
+    // fully opaque
+    FragColor = vec4(laneColor.rgb, 1.0);
 }
