@@ -136,12 +136,8 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glBindVertexArray(0);
 
-    // load textures (we now use a utility function to keep the code more organized)
-    // -----------------------------------------------------------------------------
-    unsigned int streetTexture = loadTexture("../assets/textures/GRID.png");
+    unsigned int gridTexture = loadTexture("../assets/textures/GRID.png");
 
-    // shader configuration
-    // --------------------
     shader.use();
     shader.setInt("texture1", 0);
 
@@ -149,8 +145,6 @@ int main()
     // -----------
     while (!glfwWindowShouldClose(window))
     {
-        // per-frame time logic
-        // --------------------
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -159,8 +153,6 @@ int main()
         // -----
         processInput(window);
 
-        // render
-        // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -174,7 +166,7 @@ int main()
         glActiveTexture(GL_TEXTURE0);
         // floor
         glBindVertexArray(planeVAO);
-        glBindTexture(GL_TEXTURE_2D, streetTexture);
+        glBindTexture(GL_TEXTURE_2D, gridTexture);
         shader.setMat4("model", glm::mat4(1.0f));
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
