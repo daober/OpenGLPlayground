@@ -3,15 +3,19 @@ out vec4 FragColor;
 
 in vec3 WorldPos;
 
-uniform vec4  splineCoeff;  // a, b, c, d
+uniform vec4  splineCoeff;   // a,b,c,d
 uniform float laneWidth;
 uniform float laneLength;
 uniform float laneDir;
 uniform vec4  laneColor;
 
-uniform vec3 carPos;        // base of lane (HUD anchor)
-uniform vec3 carForward;    // normalized
-uniform vec3 carRight;      // normalized
+uniform vec3 carPos;
+uniform vec3 carForward;
+uniform vec3 carRight;
+
+// NEW
+uniform float time;
+uniform float animSpeed;
 
 float cubicSpline(float z)
 {
@@ -23,22 +27,22 @@ float cubicSpline(float z)
 
 void main()
 {
-    // transform fragment into car-local coordinates
     vec3 rel = WorldPos - carPos;
 
-    float z = dot(rel, carForward); // forward distance
-    float x = dot(rel, carRight);   // lateral offset
+    float z = dot(rel, carForward);
+    float x = dot(rel, carRight);
 
     if (z < 0.0 || z > laneLength)
         discard;
 
-    float curveX = laneDir * cubicSpline(z);
+    // smooth animation factor (0..1)
+    float anim = sin(time * animSpeed) * 0.5 + 0.5;
+
+    float curveX = laneDir * cubicSpline(z) * mix(0.2, 1.0, anim);
     float dist   = abs(x - curveX);
 
-    // soft lane edges
     float edge = smoothstep(laneWidth, laneWidth * 0.7, dist);
 
-    // fade start & end
     float zn = z / laneLength;
     float fadeIn  = smoothstep(0.0, 0.1, zn);
     float fadeOut = smoothstep(1.0, 0.8, zn);

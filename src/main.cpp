@@ -24,7 +24,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
+Camera camera(glm::vec3(0.0f, -0.25f, 0.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -32,6 +32,9 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;	
 float lastFrame = 0.0f;
+
+float targetLane = -1.0f;   // start left
+float currentLane = -1.0f;
 
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
@@ -182,7 +185,9 @@ int main()
         glDisable(GL_DEPTH_TEST); // HUD-like behavior
         glm::vec4 laneColor = glm::vec4(0.1f, 0.4f, 1.0f, 0.7f);
         glm::vec4 spline = glm::vec4(0.02f, -0.15f, 0.0f,0.0f);
-        
+
+        float t = static_cast<float>(glfwGetTime());
+        currentLane = glm::mix(currentLane, targetLane, deltaTime * 4.0f);
         laneShader.use();
 
         laneShader.setMat4("view", view);
@@ -196,6 +201,11 @@ int main()
         laneShader.setFloat("laneWidth", 0.25f);
         laneShader.setFloat("laneLength", 10.0f);
 
+        // NEW
+        laneShader.setFloat("time", t);
+        laneShader.setFloat("laneDir", currentLane);
+        laneShader.setFloat("animSpeed", 1.5f);
+
         laneShader.setVec4("laneColor", glm::vec4(0.1f, 0.4f, 1.0f, 0.8f));
 
         laneShader.setVec4("splineCoeff",
@@ -206,8 +216,6 @@ int main()
                 0.0f
             )
         );
-
-        laneShader.setFloat("laneDir", -1.0f);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -239,11 +247,11 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
-{
+static bool pressed = false;
+void processInput(GLFWwindow *window) {
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -252,6 +260,18 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && !pressed) {
+        targetLane = -1.0f;
+        pressed = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !pressed) {
+        targetLane = 1.0f;
+        pressed = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE &&
+        glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) {
+        pressed = false;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
