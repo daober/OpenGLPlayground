@@ -136,7 +136,7 @@ int main()
 
     // load textures (we now use a utility function to keep the code more organized)
     // -----------------------------------------------------------------------------
-    unsigned int streetTexture = loadTexture("../assets/textures/marble.jpg");
+    unsigned int streetTexture = loadTexture("../assets/textures/GRID.png");
 
     // shader configuration
     // --------------------
