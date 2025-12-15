@@ -13,7 +13,6 @@ uniform vec3 carPos;
 uniform vec3 carForward;
 uniform vec3 carRight;
 
-// NEW
 uniform float time;
 uniform float animSpeed;
 
@@ -35,7 +34,6 @@ void main()
     if (z < 0.0 || z > laneLength)
         discard;
 
-    // smooth animation factor (0..1)
     float anim = sin(time * animSpeed) * 0.5 + 0.5;
 
     float curveX = laneDir * cubicSpline(z) * mix(0.2, 1.0, anim);
