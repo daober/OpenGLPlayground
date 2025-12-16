@@ -16,6 +16,9 @@ uniform vec3 carRight;
 uniform float time;
 uniform float animSpeed;
 
+uniform float laneTime;
+uniform float laneAnimDuration;
+
 float cubicSpline(float z)
 {
     return splineCoeff.x*z*z*z +
@@ -31,21 +34,25 @@ void main()
     float z = dot(rel, carForward);
     float x = dot(rel, carRight);
 
-    if (z < 0.0 || z > laneLength)
+    // Smooth growth 0 → laneLength
+    float grow01 = clamp(laneTime / laneAnimDuration, 0.0, 1.0);
+    float currentLength = laneLength * smoothstep(0.0, 1.0, grow01);
+
+    if (z < 0.0 || z > currentLength)
         discard;
 
-    float anim = sin(time * animSpeed) * 0.5 + 0.5;
-
-    float curveX = laneDir * cubicSpline(z) * mix(0.2, 1.0, anim);
+    float curveX = laneDir * cubicSpline(z);
     float dist   = abs(x - curveX);
 
     float edge = smoothstep(laneWidth, laneWidth * 0.7, dist);
 
-    float zn = z / laneLength;
-    float fadeIn  = smoothstep(0.0, 0.1, zn);
-    float fadeOut = smoothstep(1.0, 0.8, zn);
+    float tipFade = smoothstep(
+        currentLength,
+        currentLength - 0.4,
+        z
+    );
 
-    float alpha = edge * fadeIn * fadeOut;
+    float alpha = edge * tipFade;
 
     if (alpha < 0.01)
         discard;

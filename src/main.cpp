@@ -34,7 +34,9 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 float targetLane = -1.0f;   // start left
-float currentLane = -1.0f;
+
+float laneAnimStart = 0.0f;
+const float laneAnimDuration = 1.2f; // seconds
 
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
@@ -178,13 +180,18 @@ int main()
         glm::vec4 spline = glm::vec4(0.02f, -0.15f, 0.0f,0.0f);
 
         float t = static_cast<float>(glfwGetTime());
-        currentLane = glm::mix(currentLane, targetLane, deltaTime * 4.0f);
+        if (t - laneAnimStart > laneAnimDuration) {
+            laneAnimStart = t;
+        }
+
         laneShader.use();
 
+        laneShader.setFloat("laneTime", t - laneAnimStart);
+        laneShader.setFloat("laneAnimDuration", laneAnimDuration);
         laneShader.setMat4("view", view);
         laneShader.setMat4("projection", projection);
         laneShader.setMat4("model", glm::mat4(1.0f));
-
+        laneShader.setFloat("laneDir", targetLane);
         laneShader.setVec3("carPos", camera.Position);
         laneShader.setVec3("carForward", glm::normalize(camera.Front));
         laneShader.setVec3("carRight", glm::normalize(camera.Right));
@@ -192,10 +199,7 @@ int main()
         laneShader.setFloat("laneWidth", 0.25f);
         laneShader.setFloat("laneLength", 10.0f);
 
-        // NEW
         laneShader.setFloat("time", t);
-        laneShader.setFloat("laneDir", currentLane);
-        laneShader.setFloat("animSpeed", 1.5f);
 
         laneShader.setVec4("laneColor", glm::vec4(0.1f, 0.4f, 1.0f, 0.8f));
 
@@ -239,6 +243,7 @@ int main()
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 static bool pressed = false;
+
 void processInput(GLFWwindow *window) {
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -253,10 +258,12 @@ void processInput(GLFWwindow *window) {
         camera.ProcessKeyboard(RIGHT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && !pressed) {
         targetLane = -1.0f;
+        laneAnimStart = (float)glfwGetTime();
         pressed = true;
     }
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !pressed) {
         targetLane = 1.0f;
+        laneAnimStart = (float)glfwGetTime();
         pressed = true;
     }
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE &&
